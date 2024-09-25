@@ -43,60 +43,95 @@ namespace MarkD
 
         private void newNoteBtn_Click(object sender, EventArgs e)
         {
-            if (totalNotes <= 5)
+            Button newNoteBtn = new Button
             {
-                Button newNoteBtn = new Button
+                Text = "Note " + totalNotes,
+                Name = "noteBtn" + totalNotes,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Width = 112,
+                Height = 23
+            };
+
+            TextBox newNoteText = new TextBox
+            {
+                Font = new Font("Arial", 11),
+                Multiline = true,
+                Visible = false,
+                BackColor = Color.FromArgb(250, 254, 224),
+                ScrollBars = ScrollBars.Vertical,
+                BorderStyle = BorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+
+            newNoteText.TextChanged += (s, args) => UpdateLineNumbers(newNoteText);
+
+            notesPanel.Controls.Add(newNoteText);
+            noteTexts.Add(newNoteText);
+
+            newNoteBtn.MouseDown += (s, args) =>
+            {
+                if (args.Button == MouseButtons.Right)
                 {
-                    Text = "Note " + totalNotes,
-                    Name = "noteBtn" + totalNotes,
-                    ForeColor = Color.White,
-                    FlatStyle = FlatStyle.Flat,
-                    Width = 112,
-                    Height = 23
-                };
-
-                TextBox newNoteText = new TextBox
-                {
-                    Multiline = true,
-                    Visible = false,
-                    BackColor = Color.FromArgb(250, 254, 224),
-                    ScrollBars = ScrollBars.Vertical,
-                    Dock = DockStyle.Fill
-                };
-
-                notesPanel.Controls.Add(newNoteText);
-                noteTexts.Add(newNoteText);
-
-                newNoteBtn.MouseDown += (s, args) =>
-                {
-                    if (args.Button == MouseButtons.Right)
-                    {
-                        DeleteNoteDialog(newNoteBtn, newNoteText);
-                    }
-                };
-
-                newNoteBtn.Click += (s, args) =>
-                {
-                    SwitchToNote(newNoteText);
-                };
-
-                newNoteText.TextChanged += (s, args) =>
-                {
-                    renderMarkdown(newNoteText.Text);
-                };
-
-                btnPanel.Controls.Add(newNoteBtn);
-                newNoteBtn.Location = new Point(38, 34 + (totalNotes * 34));
-                noteButtons.Add(newNoteBtn);
-
-                totalNotes++;
-
-                if (totalNotes == 2)
-                {
-                    newNoteText.Visible = true;
+                    DeleteNoteDialog(newNoteBtn, newNoteText);
                 }
-            }
+            };
+
+            newNoteBtn.Click += (s, args) =>
+            {
+                SwitchToNote(newNoteText);
+                currFile.Text = "MarkD - " + newNoteBtn.Text; 
+            };
+
+            newNoteText.TextChanged += (s, args) =>
+            {
+                renderMarkdown(newNoteText.Text);
+                UpdateLineNumbers(newNoteText);
+            };
+
+            btnPanel.Controls.Add(newNoteBtn);
+            newNoteBtn.Location = new Point(38, 50 + (totalNotes * 34));
+            noteButtons.Add(newNoteBtn);
+
+            totalNotes++;
+
+            SwitchToNote(newNoteText);
+            currFile.Text = "MarkD - " + newNoteBtn.Text;
         }
+
+        private void UpdateLineNumbers(TextBox textBox)
+        {
+            int lineCount = textBox.Lines.Length;
+            StringBuilder lineNumbers = new StringBuilder();
+            for (int i = 1; i <= lineCount; i++)
+            {
+                lineNumbers.AppendLine(i.ToString());
+            }
+
+            linesLabel.Text = lineNumbers.ToString();
+
+            AdjustLineNumbersPosition(lineCount);
+        }
+
+        private void AdjustLineNumbersPosition(int lineCount)
+        {
+            int lineHeight = linesLabel.Font.Height;
+            int requiredHeight = lineCount * lineHeight;
+
+            int maxVisibleLines = notesPanel.Height / lineHeight;
+
+            int shift = 0;
+
+            if (lineCount > maxVisibleLines)
+            {
+                shift = (lineCount - maxVisibleLines + 1) * lineHeight;
+            }
+            linesLabel.Location = new Point(linesLabel.Location.X, -shift);
+            linesLabel.Height = requiredHeight;
+        }
+
+
+
 
         private void DeleteNoteDialog(Button noteButton, TextBox noteTextBox)
         {
@@ -132,6 +167,7 @@ namespace MarkD
             selectedNote.Focus();
 
             renderMarkdown(selectedNote.Text);
+            UpdateLineNumbers(selectedNote);
         }
 
         private void saveBtn_Click(object sender, EventArgs e)
