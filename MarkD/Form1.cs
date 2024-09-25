@@ -23,13 +23,23 @@ namespace MarkD
             InitializeComponent();
             totalNotes = 1;
 
-            notesPanel.Dock = DockStyle.Fill;
+            notesPanel.Dock = DockStyle.Left;
+            renderedMD.Dock = DockStyle.Fill;
 
             foreach (Control btn in btnPanel.Controls)
             {
                 btn.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             }
+
+            this.Resize += new EventHandler(MainForm_Resize);
         }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            notesPanel.Width = this.Width / 3;
+            renderedMD.Width = this.Width - notesPanel.Width;
+        }
+
 
         private void newNoteBtn_Click(object sender, EventArgs e)
         {
@@ -51,12 +61,10 @@ namespace MarkD
                     Visible = false,
                     BackColor = Color.FromArgb(250, 254, 224),
                     ScrollBars = ScrollBars.Vertical,
-                    Width = 308,
-                    Height = 421
+                    Dock = DockStyle.Fill
                 };
 
                 notesPanel.Controls.Add(newNoteText);
-                newNoteText.Location = new Point(0, 0);
                 noteTexts.Add(newNoteText);
 
                 newNoteBtn.MouseDown += (s, args) =>

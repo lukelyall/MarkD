@@ -39,7 +39,6 @@
             this.renderedMD = new System.Windows.Forms.WebBrowser();
             this.notesPanel = new System.Windows.Forms.Panel();
             this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
-            this.browserPnl = new System.Windows.Forms.Panel();
             this.btnPanel.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
@@ -105,7 +104,6 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(79)))), ((int)(((byte)(119)))), ((int)(((byte)(45)))));
-            this.panel2.Controls.Add(this.browserPnl);
             this.panel2.Controls.Add(this.title);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(200, 0);
@@ -126,7 +124,8 @@
             // 
             // renderedMD
             // 
-            this.renderedMD.Location = new System.Drawing.Point(510, 32);
+            this.renderedMD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.renderedMD.Location = new System.Drawing.Point(507, 32);
             this.renderedMD.MinimumSize = new System.Drawing.Size(20, 20);
             this.renderedMD.Name = "renderedMD";
             this.renderedMD.Size = new System.Drawing.Size(293, 418);
@@ -136,15 +135,8 @@
             // 
             this.notesPanel.Location = new System.Drawing.Point(200, 29);
             this.notesPanel.Name = "notesPanel";
-            this.notesPanel.Size = new System.Drawing.Size(312, 421);
+            this.notesPanel.Size = new System.Drawing.Size(312, 615);
             this.notesPanel.TabIndex = 10;
-            // 
-            // browserPnl
-            // 
-            this.browserPnl.Location = new System.Drawing.Point(310, 29);
-            this.browserPnl.Name = "browserPnl";
-            this.browserPnl.Size = new System.Drawing.Size(290, 421);
-            this.browserPnl.TabIndex = 11;
             // 
             // MarkD
             // 
@@ -178,7 +170,6 @@
         private System.Windows.Forms.Panel notesPanel;
         private System.Windows.Forms.Label title;
         private System.Windows.Forms.Button saveAllBtn;
-        private System.Windows.Forms.Panel browserPnl;
     }
 }
 
