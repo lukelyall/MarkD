@@ -15,12 +15,20 @@ namespace MarkD
     public partial class MarkD : Form
     {
         private List<TextBox> noteTexts = new List<TextBox>();
+        private List<Button> noteButtons = new List<Button>();
         private int totalNotes;
 
         public MarkD()
         {
             InitializeComponent();
             totalNotes = 1;
+
+            notesPanel.Dock = DockStyle.Fill;
+
+            foreach (Control btn in btnPanel.Controls)
+            {
+                btn.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            }
         }
 
         private void newNoteBtn_Click(object sender, EventArgs e)
@@ -51,6 +59,14 @@ namespace MarkD
                 newNoteText.Location = new Point(0, 0);
                 noteTexts.Add(newNoteText);
 
+                newNoteBtn.MouseDown += (s, args) =>
+                {
+                    if (args.Button == MouseButtons.Right)
+                    {
+                        DeleteNoteDialog(newNoteBtn, newNoteText);
+                    }
+                };
+
                 newNoteBtn.Click += (s, args) =>
                 {
                     SwitchToNote(newNoteText);
@@ -63,6 +79,7 @@ namespace MarkD
 
                 btnPanel.Controls.Add(newNoteBtn);
                 newNoteBtn.Location = new Point(38, 34 + (totalNotes * 34));
+                noteButtons.Add(newNoteBtn);
 
                 totalNotes++;
 
@@ -70,6 +87,27 @@ namespace MarkD
                 {
                     newNoteText.Visible = true;
                 }
+            }
+        }
+
+        private void DeleteNoteDialog(Button noteButton, TextBox noteTextBox)
+        {
+            var result = MessageBox.Show("Do you want to delete this note?", "Delete Note", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result == DialogResult.Yes)
+            {
+                notesPanel.Controls.Remove(noteTextBox);
+                btnPanel.Controls.Remove(noteButton);
+                noteTexts.Remove(noteTextBox);
+                noteButtons.Remove(noteButton);
+
+                for (int i = 0; i < noteButtons.Count; i++)
+                {
+                    noteButtons[i].Location = new Point(38, 68 + (i * 34));
+                    noteButtons[i].Text = "Note " + (i + 1);
+                }
+                totalNotes--;
+
+                MessageBox.Show("Note deleted!", "Delete", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -108,7 +146,7 @@ namespace MarkD
 
                 sw.Close();
                 fs.Close();
-                MessageBox.Show("File saved!", "Save", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Note saved!", "Save", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -120,26 +158,28 @@ namespace MarkD
 
         private void saveAllBtn_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog1 = new SaveFileDialog
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
             {
-                Filter = "Markdown|*.md",
-                Title = "Save All Notes"
-            };
-            saveFileDialog1.ShowDialog();
-
-            if (saveFileDialog1.FileName != "")
-            {
-                using (FileStream fs = (FileStream)saveFileDialog1.OpenFile())
-                using (StreamWriter sw = new StreamWriter(fs))
+                folderDialog.Description = "Select a folder to save all notes";
+                if (folderDialog.ShowDialog() == DialogResult.OK)
                 {
+                    string selectedPath = folderDialog.SelectedPath;
+
                     foreach (var noteTextBox in noteTexts)
                     {
-                        sw.WriteLine(noteTextBox.Text);
-                        sw.WriteLine();
-                    }
-                }
+                        int noteIndex = noteTexts.IndexOf(noteTextBox) + 1;
 
-                MessageBox.Show("All notes saved!", "Save All", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        string fileName = Path.Combine(selectedPath, $"note{noteIndex}.md");
+
+                        using (FileStream fs = new FileStream(fileName, FileMode.Create))
+                        using (StreamWriter sw = new StreamWriter(fs))
+                        {
+                            sw.WriteLine(noteTextBox.Text);
+                        }
+                    }
+
+                    MessageBox.Show("All notes saved!", "Save All", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
         }
     }
