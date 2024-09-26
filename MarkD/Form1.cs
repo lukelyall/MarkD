@@ -38,8 +38,13 @@ namespace MarkD
         {
             notesPanel.Width = this.Width / 3;
             renderedMD.Width = this.Width - notesPanel.Width;
-        }
 
+            var visibleNote = noteTexts.Find(n => n.Visible);
+            if (visibleNote != null)
+            {
+                linesLabel.Location = new Point(linesLabel.Location.X, visibleNote.Location.Y);
+            }
+        }
 
         private void newNoteBtn_Click(object sender, EventArgs e)
         {
@@ -97,6 +102,7 @@ namespace MarkD
 
             SwitchToNote(newNoteText);
             currFile.Text = "MarkD - " + newNoteBtn.Text;
+            linesLabel.Text = "1";
         }
 
         private void UpdateLineNumbers(TextBox textBox)
@@ -109,29 +115,16 @@ namespace MarkD
             }
 
             linesLabel.Text = lineNumbers.ToString();
-
-            AdjustLineNumbersPosition(lineCount);
+            AdjustLineNumbers(lineCount);
         }
 
-        private void AdjustLineNumbersPosition(int lineCount)
+        private void AdjustLineNumbers(int lineCount)
         {
             int lineHeight = linesLabel.Font.Height;
-            int requiredHeight = lineCount * lineHeight;
-
-            int maxVisibleLines = notesPanel.Height / lineHeight;
-
-            int shift = 0;
-
-            if (lineCount > maxVisibleLines)
-            {
-                shift = (lineCount - maxVisibleLines + 1) * lineHeight;
-            }
-            linesLabel.Location = new Point(linesLabel.Location.X, -shift);
-            linesLabel.Height = requiredHeight;
+            linesLabel.Height = lineCount * lineHeight;
+            linesLabel.Location = new Point(linesLabel.Location.X, notesPanel.Location.Y);
+            linesLabel.BringToFront();
         }
-
-
-
 
         private void DeleteNoteDialog(Button noteButton, TextBox noteTextBox)
         {
